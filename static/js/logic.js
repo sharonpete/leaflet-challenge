@@ -25,6 +25,9 @@ d3.json(queryUrl).then(function(data) {
             });
         }
     }).addTo(quakeMap);
+
+    
+
 });
 
 
@@ -34,40 +37,14 @@ function createFeatures(feature) {
     // each feature has a popup with place and time of earthquake
     function onEachFeature(feature, layer) {
         layer.bindPopup("<h3>" + feature.properties.place +
-            "</h3><hr><p>" + new Date(feature.properties.time) + "</p>" +
-            "<p> Magnitude: " + feature.properties.mag + "</p>" +
-            "<p> Depth: " + feature.geometry.coordinates[2] + " km </p>");
+            "</h3><hr><p>" + new Date(feature.properties.time) +
+            "&nbsp; Magnitude: " + feature.properties.mag +
+            "&nbsp; Depth: " + feature.geometry.coordinates[2] + " km </p>");
 
-        L.geoJSON(feature, {
-            pointToLayer:  function(feature, latlng) {
-                return L.circleMarker(latlng,
-                    style = {
-                    radius: markerSize(feature.properties.mag),
-                    fillColor: depthColor(feature.geometry.coordinates[2]),
-                    color: '#000',
-                    weight: 1,
-                    opacity:  0.90,
-                    fillOpacity: 0.70
-                });
-            }
-        });
-    }
-
-    function addMagnitude(feature, layer) {
-        console.log(feature.properties.mag);
-        console.log(feature.geometry.coordinates[2]);
-
-        var lat = feature.geometry.coordinates[0];
-        var lon = feature.geometry.coordinates[1];
-        var depth = feature.geometry.coordinates[2];
-        var magnitude = feature.properties.mag;
-
-        //if depth
-        
-        
         
     }
 
+   
     // create GeoJSON layer containing the features array on the earthquakeData object
     // run the onEachFeature function once for each data item in the array... why does this work???
     var earthquakes = L.geoJSON(feature, {
@@ -139,6 +116,35 @@ function createMap(earthquakes) {
     L.control.layers(baseMaps, overlayMaps, {
         collapsed: false
     }).addTo(quakeMap);
+
+    // create legend
+    var legend = L.control({
+        position: "bottomright"
+    });
+
+    legend.onAdd = function() {
+        var div = L.DomUtil.create("div", "Quake Legend");
+        var depths = [90, 70, 50, 30, 10, -10];
+        var colors = [
+                "#fb6107",
+                "#fbb02d",
+                "#f3de2c",
+                "#7cb518",
+                "#5fad56",
+                "#4d9078"];
+        
+        depths.forEach(function(item, index) {
+            div.innerHTML+= "<i style = 'background: " + colors[index] + "'>" + item + "</i>";
+            
+            
+        });
+        console.log(div);
+        return div;
+    };
+    
+    legend.addTo(quakeMap);
+    
+
     
     return quakeMap;
 }
@@ -205,19 +211,7 @@ function depthColor(depth) {
 // // control for layers, and add overlay layers to map
 // L.control.layers(null, overlays).addTo(quakeMap);
 
-// // legend to display information about quakeMap
-// var quakeInfo = L.control({
-//     position: 'bottomright'
-// });
 
-// // insert div with class of 'legend'
-// quakeInfo.onAdd = function() {
-//     var div = L.DomUtil.create("div", "legend");
-//     return div;
-// };
-
-// // add the quakeInfo legend to the map
-// quakeInfo.addTo(quakeMap);
 
 // // icons for each layer group
 // var quakeIcons = {
