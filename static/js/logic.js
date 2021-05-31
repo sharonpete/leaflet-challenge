@@ -123,21 +123,18 @@ function createMap(earthquakes) {
     });
 
     legend.onAdd = function() {
-        var div = L.DomUtil.create("div", "Quake Legend");
+        var div = L.DomUtil.create("div", "info legend");
+        var labels = ['<strong>Earthquake Depth</strong>']
         var depths = [90, 70, 50, 30, 10, -10];
-        var colors = [
-                "#fb6107",
-                "#fbb02d",
-                "#f3de2c",
-                "#7cb518",
-                "#5fad56",
-                "#4d9078"];
-        
-        depths.forEach(function(item, index) {
-            div.innerHTML+= "<i style = 'background: " + colors[index] + "'>" + item + "</i>";
+                
+        depths.forEach(function(depth, index) {
+            div.innerHTML+= 
+            labels.push("<i class='circle' style = 'background: " + depthColor(depth) + "'>" + depth + " km </i>"
+            );
             
             
         });
+        div.innerHTML = labels.join("<br>");
         console.log(div);
         return div;
     };
@@ -155,17 +152,17 @@ function markerSize(magnitude) {
 
 function depthColor(depth) {
     if (depth > 90) {
-        return "#fb6107";
+        return "#9d0208";
     } else if (depth > 70) {
-        return "#fbb02d";
+        return "#dc2f02";
     } else if (depth > 50) {
-        return "#f3de2c";
+        return "#e85d04";
     } else if (depth > 30) {
-        return "#7cb518";
+        return "#f48c06";
     } else if (depth > 10) {
-        return "#5fad56";
-    } else {
-        return "#4d9078";
+        return "#faa307";
+    } else if (depth <= 10) {
+        return "#ffba08";
     }
 }
 
