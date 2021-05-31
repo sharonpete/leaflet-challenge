@@ -4,42 +4,42 @@ console.log('logic.js is loaded');
 //var queryUrl = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2014-01-01&endtime=" +
   //"2014-01-02&maxlongitude=-69.52148437&minlongitude=-123.83789062&maxlatitude=48.74894534&minlatitude=25.16517337";
 
-var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
+var quakeUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
+
+var plateUrl = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json";
+
 
 // GET request to the query URL
-d3.json(queryUrl).then(function(data) {
-//d3.json("../static/data/all_week.geojson").then(function(data) {
-    // get a response, sent the data.features object to the createFeatures function
-    var quakeMap = createFeatures(data.features);
+d3.json(quakeUrl).then(function(quakeData) {
 
-    L.geoJSON(data, {
-        pointToLayer:  function(feature, latlng) {
-            return L.circleMarker(latlng,
-                style = {
-                radius: markerSize(feature.properties.mag),
-                fillColor: depthColor(feature.geometry.coordinates[2]),
-                color: '#000',
-                weight: 1,
-                opacity:  0.90,
-                fillOpacity: 0.70
-            });
-        }
-    }).addTo(quakeMap);
+    d3.json(plateUrl).then(function(plateData) {
+    // get a response, sent the data.features object to the createFeatures function
+        createFeatures(quakeData.features, plateData.features);
+
+    });
+    // L.geoJSON(data, {
+    //     pointToLayer:  function(feature, latlng) {
+    //         return L.circleMarker(latlng,
+    //            
+    //         });
+    //     }
+    // }).addTo(quakeMap);
 
     
 
 });
 
 
-function createFeatures(feature) {
+
+function createFeatures(quakeData, plateData) {
     
     // function to run once for each feature in the features array in the geojson
     // each feature has a popup with place and time of earthquake
     function onEachFeature(feature, layer) {
-        layer.bindPopup("<h3>" + feature.properties.place +
-            "</h3><hr><p>" + new Date(feature.properties.time) +
-            "&nbsp; Magnitude: " + feature.properties.mag +
-            "&nbsp; Depth: " + feature.geometry.coordinates[2] + " km </p>");
+        layer.bindPopup("<h4>" + feature.properties.place +
+        "</h4><hr><p>" + new Date(feature.properties.time) +
+        "&nbsp; Magnitude: " + feature.properties.mag +
+        "&nbsp; Depth: " + feature.geometry.coordinates[2] + " km </p>");
 
         
     }
@@ -47,24 +47,48 @@ function createFeatures(feature) {
    
     // create GeoJSON layer containing the features array on the earthquakeData object
     // run the onEachFeature function once for each data item in the array... why does this work???
-    var earthquakes = L.geoJSON(feature, {
-        onEachFeature: onEachFeature
+    var earthquakes = L.geoJSON(quakeData, {
+        //onEachFeature: onEachFeature
+        
+        pointToLayer: function (feature, latlng) {  
+            console.log(latlng);
+
+            return L.circleMarker(latlng, {
+                radius: markerSize(feature.properties.mag),
+                fillColor: depthColor(feature.geometry.coordinates[2]),
+                color: '#000',
+                weight: 1,
+                opacity:  0.90,
+                fillOpacity: 0.70
+            }).bindPopup("<h4>" + feature.properties.place +
+            "</h4><hr><p>" + new Date(feature.properties.time) +
+            "&nbsp; Magnitude: " + feature.properties.mag +
+            "&nbsp; Depth: " + feature.geometry.coordinates[2] + " km </p>");
+        }
     });
 
+    var plates = L.geoJSON(plateData, {
+        style: function (feature) {
+            return {
+                color: 'orange',
+                weight: 2
+            };
+        }
+    });
     // send earthquakes layer to the createMap function
-    return createMap(earthquakes);
+    createMap(earthquakes, plates);
 }
 
 
-function createMap(earthquakes) {
-    var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
-        attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
-        tileSize: 512,
-        maxZoom: 18,
-        zoomOffset: -1,
-        id: "streets-v11",
-        accessToken: API_KEY
-      });
+function createMap(earthquakes, plates) {
+    // var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+    //     attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+    //     tileSize: 512,
+    //     maxZoom: 18,
+    //     zoomOffset: -1,
+    //     id: "streets-v11",
+    //     accessToken: API_KEY
+    //   });
 
     var darkmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
@@ -94,20 +118,21 @@ function createMap(earthquakes) {
       });
 
     var baseMaps = {
-        "Street Map": streetmap,
+        //"Street Map": streetmap,
         "Dark Map": darkmap,
         "Outdoors Map": outdoorsmap,
         "Satellite Map": satellitemap
     };
 
     var overlayMaps = {
-          Earthquakes: earthquakes
+          'Earthquakes': earthquakes,
+          'Tectonic Plates': plates
     };
 
     var quakeMap = L.map("mapid", {
         center: [37.09, -95.71],  //Dearing, Kansas ... for reasons?
         zoom: 5,
-        layers: [darkmap, earthquakes]
+        layers: [darkmap, earthquakes, plates]
     });
 
     // create layer control
@@ -140,10 +165,18 @@ function createMap(earthquakes) {
     };
     
     legend.addTo(quakeMap);
-    
 
-    
-    return quakeMap;
+    quakeMap.on('overlayremove', function (eventLayer) {
+        if (eventLayer.name === 'Earthquakes') {
+            this.removeControl(legend);
+        }
+    });
+
+    quakeMap.on('overlayadd', function(eventLayer) {
+        if (eventLayer.name === 'Earthquakes') {
+            legend.addTo(this);
+        }
+    });
 }
 
 function markerSize(magnitude) {
@@ -152,17 +185,17 @@ function markerSize(magnitude) {
 
 function depthColor(depth) {
     if (depth > 90) {
-        return "#9d0208";
+        return "#f94144";
     } else if (depth > 70) {
-        return "#dc2f02";
+        return "#f3722c";
     } else if (depth > 50) {
-        return "#e85d04";
+        return "#f9c74f";
     } else if (depth > 30) {
-        return "#f48c06";
+        return "#90be6d";
     } else if (depth > 10) {
-        return "#faa307";
+        return "#43aa8b";
     } else if (depth <= 10) {
-        return "#ffba08";
+        return "#577590";
     }
 }
 
