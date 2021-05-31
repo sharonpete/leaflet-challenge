@@ -20,13 +20,44 @@ function createFeatures(earthquakeData) {
     // each feature has a popup with place and time of earthquake
     function onEachFeature(feature, layer) {
         layer.bindPopup("<h3>" + feature.properties.place +
-            "</h3><hr><p>" + new Date(feature.properties.time) + "</p>");
+            "</h3><hr><p>" + new Date(feature.properties.time) + "</p>" +
+            "<p> Magnitude: " + feature.properties.mag + "</p>" +
+            "<p> Depth: " + feature.geometry.coordinates[2] + " km </p>");
+        
+    }
+
+    function addEachMag(feature, layer) {
+        console.log(feature.properties.mag);
+        console.log(feature.geometry.coordinates[2]);
+
+        var lat = feature.geometry.coordinates[0];
+        var lon = feature.geometry.coordinates[1];
+        var depth = feature.geometry.coordinates[2];
+        var magnitude = feature.properties.mag;
+
+        //if depth
+        
+        L.circle(feature, {
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng);
+            },
+            radius: markerSize(feature.properties.mag),
+            fillColor: depthColor(feature.geometry.coordinates[2]),
+            color: '#000',
+            weight: 1,
+            opacity:  0.90,
+            fillOpacity: 0.70
+        
+          
+        });
+        
     }
 
     // create GeoJSON layer containing the features array on the earthquakeData object
     // run the onEachFeature function once for each data item in the array... why does this work???
     var earthquakes = L.geoJSON(earthquakeData, {
-        onEachFeature: onEachFeature
+        onEachFeature: onEachFeature,
+        addEachMag: addEachMag
     });
 
     // send earthquakes layer to the createMap function
@@ -35,36 +66,58 @@ function createFeatures(earthquakeData) {
 
 
 function createMap(earthquakes) {
-    var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+    var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
         tileSize: 512,
         maxZoom: 18,
         zoomOffset: -1,
-        id: "mapbox/streets-v11",
+        id: "streets-v11",
         accessToken: API_KEY
       });
 
     var darkmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+        tileSize: 512,
         maxZoom: 18,
+        zoomOffset: -1,
         id: "dark-v10",
         accessToken: API_KEY
       });
 
-      var baseMaps = {
-        "Street Map": streetmap,
-        "Dark Map": darkmap
-      };
+    var outdoorsmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+        attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+        tileSize: 512,
+        maxZoom: 18,
+        zoomOffset: -1,
+        id: "outdoors-v11",
+        accessToken: API_KEY
+    });
 
-      var overlayMaps = {
-          Earthquakes: earthquakes
-      };
-
-      var quakeMap = L.map("mapid", {
-        center: [37.09, -95.71],
-        zoom: 5,
-        layers: [streetmap, earthquakes]
+    var satellitemap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+        attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+        tileSize: 512,
+        maxZoom: 18,
+        zoomOffset: -1,
+        id: "satellite-v9",
+        accessToken: API_KEY
       });
+
+    var baseMaps = {
+        "Street Map": streetmap,
+        "Dark Map": darkmap,
+        "Outdoors Map": outdoorsmap,
+        "Satellite Map": satellitemap
+    };
+
+    var overlayMaps = {
+          Earthquakes: earthquakes
+    };
+
+    var quakeMap = L.map("mapid", {
+        center: [37.09, -95.71],  //Dearing, Kansas ... for reasons?
+        zoom: 5,
+        layers: [darkmap, earthquakes]
+    });
 
       // create layer control
       // pass in baseMaps and overlayMaps
@@ -74,8 +127,25 @@ function createMap(earthquakes) {
       }).addTo(quakeMap);
 }
 
+function markerSize(magnitude) {
+    return magnitude;
+}
 
-
+function depthColor(depth) {
+    if (depth > 90) {
+        return "#fb6107";
+    } else if (depth > 70) {
+        return "#fbb02d";
+    } else if (depth > 50) {
+        return "#f3de2c";
+    } else if (depth > 30) {
+        return "#7cb518";
+    } else if (depth > 10) {
+        return "#5fad56";
+    } else {
+        return "#4d9078";
+    }
+}
 
 
 
