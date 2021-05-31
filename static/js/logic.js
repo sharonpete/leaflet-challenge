@@ -51,7 +51,7 @@ function createFeatures(quakeData, plateData) {
         //onEachFeature: onEachFeature
         
         pointToLayer: function (feature, latlng) {  
-            console.log(latlng);
+            //console.log(latlng);
 
             return L.circleMarker(latlng, {
                 radius: markerSize(feature.properties.mag),
@@ -131,7 +131,7 @@ function createMap(earthquakes, plates) {
 
     var quakeMap = L.map("mapid", {
         center: [37.09, -95.71],  //Dearing, Kansas ... for reasons?
-        zoom: 5,
+        zoom: 4,
         layers: [darkmap, earthquakes, plates]
     });
 
@@ -160,7 +160,7 @@ function createMap(earthquakes, plates) {
             
         });
         div.innerHTML = labels.join("<br>");
-        console.log(div);
+        //console.log(div);
         return div;
     };
     
