@@ -5,7 +5,8 @@ var queryUrl = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&
   "2014-01-02&maxlongitude=-69.52148437&minlongitude=-123.83789062&maxlatitude=48.74894534&minlatitude=25.16517337";
 
 // GET request to the query URL
-d3.json(queryUrl).then(function(data) {
+//d3.json(queryUrl).then(function(data) {
+d3.json("../static/data/all_week.geojson").then(function(data) {
     // get a response, sent the data.features object to the createFeatures function
     createFeatures(data.features);
 });
