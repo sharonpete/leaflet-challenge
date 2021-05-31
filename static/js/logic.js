@@ -154,7 +154,7 @@ function createMap(earthquakes, plates) {
                 
         depths.forEach(function(depth, index) {
             div.innerHTML+= 
-            labels.push("<i class='circle' style = 'background: " + depthColor(depth) + "'>" + depth + " km </i>"
+            labels.push("<i class='rectangle' style = 'background: " + depthColor(depth) + "'>" + depth + " </i> kilometers"
             );
             
             
@@ -184,15 +184,15 @@ function markerSize(magnitude) {
 }
 
 function depthColor(depth) {
-    if (depth > 90) {
+    if (depth >= 90) {
         return "#f94144";
-    } else if (depth > 70) {
+    } else if (depth >= 70) {
         return "#f3722c";
-    } else if (depth > 50) {
+    } else if (depth >= 50) {
         return "#f9c74f";
-    } else if (depth > 30) {
+    } else if (depth >= 30) {
         return "#90be6d";
-    } else if (depth > 10) {
+    } else if (depth >= 10) {
         return "#43aa8b";
     } else if (depth <= 10) {
         return "#577590";
