@@ -10,11 +10,25 @@ var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_da
 d3.json(queryUrl).then(function(data) {
 //d3.json("../static/data/all_week.geojson").then(function(data) {
     // get a response, sent the data.features object to the createFeatures function
-    createFeatures(data.features);
+    var quakeMap = createFeatures(data.features);
+
+    L.geoJSON(data, {
+        pointToLayer:  function(feature, latlng) {
+            return L.circleMarker(latlng,
+                style = {
+                radius: markerSize(feature.properties.mag),
+                fillColor: depthColor(feature.geometry.coordinates[2]),
+                color: '#000',
+                weight: 1,
+                opacity:  0.90,
+                fillOpacity: 0.70
+            });
+        }
+    }).addTo(quakeMap);
 });
 
 
-function createFeatures(earthquakeData) {
+function createFeatures(feature) {
     
     // function to run once for each feature in the features array in the geojson
     // each feature has a popup with place and time of earthquake
@@ -23,10 +37,23 @@ function createFeatures(earthquakeData) {
             "</h3><hr><p>" + new Date(feature.properties.time) + "</p>" +
             "<p> Magnitude: " + feature.properties.mag + "</p>" +
             "<p> Depth: " + feature.geometry.coordinates[2] + " km </p>");
-        
+
+        L.geoJSON(feature, {
+            pointToLayer:  function(feature, latlng) {
+                return L.circleMarker(latlng,
+                    style = {
+                    radius: markerSize(feature.properties.mag),
+                    fillColor: depthColor(feature.geometry.coordinates[2]),
+                    color: '#000',
+                    weight: 1,
+                    opacity:  0.90,
+                    fillOpacity: 0.70
+                });
+            }
+        });
     }
 
-    function addEachMag(feature, layer) {
+    function addMagnitude(feature, layer) {
         console.log(feature.properties.mag);
         console.log(feature.geometry.coordinates[2]);
 
@@ -37,31 +64,18 @@ function createFeatures(earthquakeData) {
 
         //if depth
         
-        L.circle(feature, {
-            pointToLayer: function(feature, latlng) {
-                return L.circleMarker(latlng);
-            },
-            radius: markerSize(feature.properties.mag),
-            fillColor: depthColor(feature.geometry.coordinates[2]),
-            color: '#000',
-            weight: 1,
-            opacity:  0.90,
-            fillOpacity: 0.70
         
-          
-        });
         
     }
 
     // create GeoJSON layer containing the features array on the earthquakeData object
     // run the onEachFeature function once for each data item in the array... why does this work???
-    var earthquakes = L.geoJSON(earthquakeData, {
-        onEachFeature: onEachFeature,
-        addEachMag: addEachMag
+    var earthquakes = L.geoJSON(feature, {
+        onEachFeature: onEachFeature
     });
 
     // send earthquakes layer to the createMap function
-    createMap(earthquakes);
+    return createMap(earthquakes);
 }
 
 
@@ -119,16 +133,18 @@ function createMap(earthquakes) {
         layers: [darkmap, earthquakes]
     });
 
-      // create layer control
-      // pass in baseMaps and overlayMaps
-      // add layer control to the map
-      L.control.layers(baseMaps, overlayMaps, {
-          collapsed: false
-      }).addTo(quakeMap);
+    // create layer control
+    // pass in baseMaps and overlayMaps
+    // add layer control to the map
+    L.control.layers(baseMaps, overlayMaps, {
+        collapsed: false
+    }).addTo(quakeMap);
+    
+    return quakeMap;
 }
 
 function markerSize(magnitude) {
-    return magnitude;
+    return magnitude * 5;
 }
 
 function depthColor(depth) {
