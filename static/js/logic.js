@@ -8,7 +8,7 @@ console.log('logic.js is loaded');
 // var plateUrl = "../static/data/PB2002_plates.json";
 
 // API endpoint - if you need to use the files, comment out these these two URL and use the two above
-var quakeUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
+var quakeUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 var plateUrl = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json";
 
 
