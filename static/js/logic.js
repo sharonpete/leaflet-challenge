@@ -1,11 +1,14 @@
 console.log('logic.js is loaded');
 
-// API endpoint
-//var queryUrl = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2014-01-01&endtime=" +
-  //"2014-01-02&maxlongitude=-69.52148437&minlongitude=-123.83789062&maxlatitude=48.74894534&minlatitude=25.16517337";
+// Set your mapbox api key here:
+// const API_KEY = "YOUR MAPBOX API KEY GOES HERE";
 
+// If you do not have a mapbox api key, use these data files in lieu of the two endpoints below.
+// var quakeUrl = "../static/data/all_week.geojson"
+// var plateUrl = "../static/data/PB2002_plates.json";
+
+// API endpoint - if you need to use the files, comment out these these two URL and use the two above
 var quakeUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
-
 var plateUrl = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json";
 
 
@@ -14,21 +17,10 @@ d3.json(quakeUrl).then(function(quakeData) {
 
     d3.json(plateUrl).then(function(plateData) {
     // get a response, sent the data.features object to the createFeatures function
+        console.log(plateData);
         createFeatures(quakeData.features, plateData.features);
-
     });
-    // L.geoJSON(data, {
-    //     pointToLayer:  function(feature, latlng) {
-    //         return L.circleMarker(latlng,
-    //            
-    //         });
-    //     }
-    // }).addTo(quakeMap);
-
-    
-
 });
-
 
 
 function createFeatures(quakeData, plateData) {
@@ -40,8 +32,6 @@ function createFeatures(quakeData, plateData) {
         "</h4><hr><p>" + new Date(feature.properties.time) +
         "&nbsp; Magnitude: " + feature.properties.mag +
         "&nbsp; Depth: " + feature.geometry.coordinates[2] + " km </p>");
-
-        
     }
 
    
@@ -155,9 +145,7 @@ function createMap(earthquakes, plates) {
         depths.forEach(function(depth, index) {
             div.innerHTML+= 
             labels.push("<i class='rectangle' style = 'background: " + depthColor(depth) + "'>" + depth + " </i> kilometers"
-            );
-            
-            
+            );           
         });
         div.innerHTML = labels.join("<br>");
         //console.log(div);
@@ -201,62 +189,3 @@ function depthColor(depth) {
 
 
 
-// // initialize the LayerGroups
-// var layers = {
-//     COMING_SOON: new L.LayerGroup()
-// };
-
-// // create the map with the layers
-// var quakeMap = L.map("mapid", {
-//     //center: [45.52, -122.67],
-//     center: [48.3689, -103.77155634166667],
-//     zoom: 4, layers: [
-//         layers.COMING_SOON
-//     ]
-// });
-
-// // create the tile layer for the background of the map
-
-// L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
-//     attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
-//     tileSize: 512,
-//     maxZoom: 18,
-//     zoomOffset: -1,
-//     id: "streets-v11",
-//      accessToken: API_KEY
-// }).addTo(quakeMap);
-
-// console.log('map loaded?');
-
-
-
-// // add 'lightmap' tile layer to the map
-// //lightmap.addTo(quakeMap);
-
-// // create overlays object to add to the layer control
-// var overlays = {
-//     'Coming Soon': layers.COMING_SOON
-// };
-
-// // control for layers, and add overlay layers to map
-// L.control.layers(null, overlays).addTo(quakeMap);
-
-
-
-// // icons for each layer group
-// var quakeIcons = {
-//     COMING_SOON: L.icon({
-//         icon: "ion-settings",
-//         iconColor: "red",
-//         markerColor: "yellow",
-//         shape: "triangle"
-//     })
-// };
-
-// d3.json("../static/data/all_week.geojson").then(function(data) {
-//     console.log(data);
-//     console.log(data.features);
-//     console.log(data.features[0]);
-    
-    
-// });
