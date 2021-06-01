@@ -9,18 +9,25 @@ The purpose of this work was to build some tools to visualize earthquake data fo
 The earthquake data comes from [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php).  The feed selected was 'All Earthquakes' for the Past 7 days.
 
 The tectonic plate data comes from [https://github.com/fraxen/tectonicplates](https://github.com/fraxen/tectonicplates)
-The raw tectonic plate data may be view [here]("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json")
-
-### How it works
+The raw tectonic plate data may be viewed [here]("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json")
 
 
 #### Set up instructions:
 This dashboard uses several map styles from MapBox. For the best experience:
--- Download the Git repository
--- Add a 'config.js in the /static/js directory with API_KEY = "<Your MapBOX API KEY>" and save the file.
--- Right click on index.html and select 'Open with Live Server'
+- Download the Git repository
+- Add a 'config.js in the /static/js directory with API_KEY = "<Your MapBOX API KEY>" and save the file.
+- Right click on index.html and select 'Open with Live Server'
 
 Alternately:
--- The repository can be used without an API_KEY, but it requires the user to open the /static/js/logic.js file in Visual Studio Code and follow the directions at the top of the file.  Comment out the two URLs using the API call and uncomment the two name-matched URLs which use local data files found in /static/data.  
--- Save logic.js.
--- Right click on index.html and select 'Open with Live Server'
+- The repository can be used without an API_KEY, but it requires the user to open the /static/js/logic.js file in Visual Studio Code and follow the directions at the top of the file.  Comment out the two URLs using the API call and uncomment the two name-matched URLs which use local data files found in /static/data.  
+- Save logic.js.
+- Right click on index.html and select 'Open with Live Server'
+
+#### How it works
+The map is initially displayed using a Dark Map with both the Earthquakes and Tectonic Plates overlays selected. Other available map styles are the Outdoors Map and the Satellite Map. Each reported earthquake is represented on the map by its reported location.
+Each circle does contain additional information including the reported location, the date and time of the earthquake, the earthquake's magnitude and depth. 
+The size of the circle represents the relative *magnitude* of the earthquake.  
+The color of the circle indicates the *depth* of the earthquake. There is a legend in the lower righthand corner that indicates the *Earthquake Depth* color, based on the *depth* in kilometers.  If the Earthquakes overlay is unselected, the Earthquake Depth legend will also be removed from the map.  
+There is also a second overlay indicating the *Tectonic Plates*.  This overlay may also be unselected / selected. 
+There are certain areas that have many reported earthquakes.  The best way to examine those is to zoom into that part of the map in order to see some separation of the earthquake circle markers.
+
